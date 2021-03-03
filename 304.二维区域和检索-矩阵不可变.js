@@ -9,11 +9,34 @@
  * @param {number[][]} matrix
  */
 var NumMatrix = function (matrix) {
-  const m = matrix.length, n = matrix[0] ? matrix[0].length : 0;
-  this.matrix = Array.from({ length: m }).map(() => Array.from({ length: n }));
+  // 1. 暴力解法
+  // const m = matrix.length, n = matrix[0] ? matrix[0].length : 0;
+  // this.matrix = Array.from({ length: m }).map(() => Array.from({ length: n }));
+  // for (let i = 0; i < m; i++) {
+  //   for (let j = 0; j < n; j++) {
+  //     this.matrix[i][j] = matrix[i][j];
+  //   }
+  // }
+
+  // 2. 一维前缀和
+  // const m = matrix.length;
+  // if (m <= 0) return;
+  // const n = matrix[0].length;
+  // this.sums = Array.from({ length: m }).map(() => Array.from({ length: n + 1 }).fill(0));
+  // for (let i = 0; i < m; i++) {
+  //   for (let j = 0; j < n; j++) {
+  //     this.sums[i][j + 1] = this.sums[i][j] + matrix[i][j];
+  //   }
+  // }
+
+  // 3. 二维前缀和
+  const m = matrix.length;
+  if (m <= 0) return;
+  const n = matrix[0].length;
+  this.sums = Array.from({ length: m + 1 }).map(() => Array.from({ length: n + 1 }).fill(0));
   for (let i = 0; i < m; i++) {
     for (let j = 0; j < n; j++) {
-      this.matrix[i][j] = matrix[i][j];
+      this.sums[i + 1][j + 1] = this.sums[i][j + 1] + this.sums[i + 1][j] - this.sums[i][j] + matrix[i][j];
     }
   }
 };
@@ -26,14 +49,24 @@ var NumMatrix = function (matrix) {
  * @return {number}
  */
 NumMatrix.prototype.sumRegion = function (row1, col1, row2, col2) {
-  // (280 ms 42.5 MB)
-  let sum = 0;
-  for (let i = row1; i <= row2; i++) {
-    for (let j = col1; j <= col2; j++) {
-      sum += this.matrix[i][j];
-    }
-  }
-  return sum;
+  // 1. 暴力解法 (280 ms 42.5 MB)
+  // let sum = 0;
+  // for (let i = row1; i <= row2; i++) {
+  //   for (let j = col1; j <= col2; j++) {
+  //     sum += this.matrix[i][j];
+  //   }
+  // }
+  // return sum;
+
+  // 2. 一维前缀和 (120 ms 42.5 MB)(59.02% 72.95%)
+  // let sum = 0;
+  // for (let i = row1; i <= row2; i++) {
+  //   sum += this.sums[i][col2 + 1] - this.sums[i][col1];
+  // }
+  // return sum;
+
+  // 3. 二维前缀和 (104 ms 42.6 MB)(94.26% 58.20%)
+  return this.sums[row2 + 1][col2 + 1] - this.sums[row1][col2 + 1] - this.sums[row2 + 1][col1] + this.sums[row1][col1];
 };
 
 /**
